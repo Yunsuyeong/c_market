@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .primary-btn {
+    @apply w-full bg-orange-500
+        text-white text-center font-medium rounded-md
+        hover:bg-orange-400 transition-colors;
+  }
+}
+
+@layer base {
+  a {
+    @apply text-orange-500;
+  }
+}
+
+@layer utilities {
+  .text-bigger-hello {
+    font-soze: 4444px;
+  }
+}

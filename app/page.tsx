@@ -4,7 +4,7 @@ const Home = () => {
   return (
     <div className="flex flex-col items-center justify-between min-h-screen p-6">
       <div className="flex flex-col items-center my-auto *:font-medium">
-        <span className="text-9xl">Carrot</span>
+        <span className="text-9xl"></span>
         <h1 className="text-4xl">당근</h1>
         <h2 className="tet-2xl">당근 마켓에 오시오</h2>
       </div>

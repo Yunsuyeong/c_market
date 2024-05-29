@@ -5,26 +5,70 @@ import {
   PASSWORD_REGEX,
   PASSWORD_REGEX_ERROR,
 } from "@/lib/constants";
+import client from "@/lib/db";
 import { z } from "zod";
+import bcrypt from "bcrypt";
+import getSession from "@/lib/session";
+import { redirect } from "next/navigation";
+
+const checkEmail = async (email: string) => {
+  const user = await client.user.findUnique({
+    where: {
+      email,
+    },
+    select: {
+      id: true,
+    },
+  });
+  return Boolean(user);
+};
 
 const formSchema = z.object({
-  email: z.string().email().toLowerCase().trim(),
-  password: z
+  email: z
     .string()
-    .min(PASSWORD_MIN_LENGTH)
-    .regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
+    .email()
+    .toLowerCase()
+    .trim()
+    .refine(checkEmail, "An account with this email doesn't exists"),
+  password: z.string().min(PASSWORD_MIN_LENGTH),
+  //.regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
 });
 
-const onSubmit = (prev: any, formData: FormData) => {
+const onSubmit = async (prev: any, formData: FormData) => {
   const data = {
     email: formData.get("email"),
     password: formData.get("password"),
   };
-  const result = formSchema.safeParse(data);
+  const result = await formSchema.spa(data);
   if (!result.success) {
     return result.error.flatten();
   } else {
-    console.log(result.data);
+    const user = await client.user.findUnique({
+      where: {
+        email: result.data.email,
+      },
+      select: {
+        id: true,
+        password: true,
+      },
+    });
+    const ok = await bcrypt.compare(
+      result.data.password,
+      user!.password ?? "xxxx"
+    );
+    if (ok) {
+      const session = await getSession();
+      session.id = user!.id;
+      await session.save();
+      redirect("/profile");
+    } else {
+      return {
+        fieldErrors: {
+          password: ["Wrong password"],
+          email: [],
+        },
+      };
+    }
   }
 };
 

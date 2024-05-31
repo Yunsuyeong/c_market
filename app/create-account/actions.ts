@@ -9,6 +9,7 @@ import { z } from "zod";
 import bcrypt from "bcrypt";
 import { redirect } from "next/navigation";
 import getSession from "@/lib/session";
+import { userLogin } from "../login/actions";
 
 // zod - 입력 값의 type, 유효성 검사 라이브러리
 // bcrypt - 특정 숫자를 hash 암호화해 랜덤 숫자를 생성함
@@ -126,10 +127,7 @@ const onSubmit = async (prev: any, formData: FormData) => {
         id: true,
       },
     });
-    const session = await getSession();
-    session.id = user.id;
-    await session.save();
-    redirect("/profile");
+    return userLogin(user.id);
   }
 };
 

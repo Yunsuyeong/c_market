@@ -11,6 +11,13 @@ import bcrypt from "bcrypt";
 import getSession from "@/lib/session";
 import { redirect } from "next/navigation";
 
+export const userLogin = async (id: number) => {
+  const session = await getSession();
+  session.id = id;
+  await session.save();
+  redirect("/profile");
+};
+
 const checkEmail = async (email: string) => {
   const user = await client.user.findUnique({
     where: {
@@ -57,10 +64,7 @@ const onSubmit = async (prev: any, formData: FormData) => {
       user!.password ?? "xxxx"
     );
     if (ok) {
-      const session = await getSession();
-      session.id = user!.id;
-      await session.save();
-      redirect("/profile");
+      return userLogin(user!.id);
     } else {
       return {
         fieldErrors: {

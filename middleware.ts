@@ -12,6 +12,8 @@ const publicUrl: IRoute = {
   "/login": true,
   "/sms": true,
   "/create-account": true,
+  "/github/start": true,
+  "/github/complete": true,
 };
 
 export const middleware = async (req: NextRequest) => {
@@ -27,6 +29,8 @@ export const middleware = async (req: NextRequest) => {
     }
   }
 };
+
+//middleware가 실행되게 할 파일의 url을 config로 설정 가능
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],

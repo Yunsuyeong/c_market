@@ -1,7 +1,7 @@
 //complete 단계에서는 github에서 제공하는 code를 로그인에 필요한 access token으로 바꿔야 함
 
 import client from "@/lib/db";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
 import { userLogin } from "@/app/login/actions";
 import getAccessToken, { getUserEmail, getUserProfile } from "@/lib/github";
@@ -28,7 +28,8 @@ export const GET = async (req: NextRequest) => {
     },
   });
   if (user) {
-    return userLogin(user.id);
+    userLogin(user.id);
+    return redirect("/profile");
   }
   const existsUsername = await client.user.findUnique({
     where: {
@@ -53,5 +54,6 @@ export const GET = async (req: NextRequest) => {
       username: true,
     },
   });
-  return userLogin(newUser.id);
+  userLogin(newUser.id);
+  return redirect("/profile");
 };

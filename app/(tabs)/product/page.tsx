@@ -1,8 +1,9 @@
 import ListProduct from "@/components/list-product";
+import ProductList from "@/components/product-list";
 import client from "@/lib/db";
 
-const getProducts = async () => {
-  const products = await client.product.findMany({
+const getInitialProducts = async () => {
+  const initialProducts = await client.product.findMany({
     select: {
       id: true,
       title: true,
@@ -10,17 +11,19 @@ const getProducts = async () => {
       createdAt: true,
       photo: true,
     },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 1,
   });
-  return products;
+  return initialProducts;
 };
 
 const Products = async () => {
-  const products = await getProducts();
+  const products = await getInitialProducts();
   return (
-    <div className="flex flex-col gap-5 p-5">
-      {products.map((product) => (
-        <ListProduct key={product.id} {...product} />
-      ))}
+    <div>
+      <ProductList initialProducts={products} />
     </div>
   );
 };

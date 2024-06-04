@@ -3,8 +3,9 @@
 import client from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
-import { userLogin } from "@/app/login/actions";
+
 import getAccessToken, { getUserEmail, getUserProfile } from "@/lib/github";
+import { userLogin } from "../../login/actions";
 
 export const GET = async (req: NextRequest) => {
   const code = req.nextUrl.searchParams.get("code");
@@ -28,8 +29,7 @@ export const GET = async (req: NextRequest) => {
     },
   });
   if (user) {
-    userLogin(user.id);
-    return redirect("/profile");
+    return userLogin(user.id);
   }
   const existsUsername = await client.user.findUnique({
     where: {
@@ -54,6 +54,5 @@ export const GET = async (req: NextRequest) => {
       username: true,
     },
   });
-  userLogin(newUser.id);
-  return redirect("/profile");
+  return userLogin(newUser.id);
 };

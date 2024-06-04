@@ -22,7 +22,7 @@ const TabBar = () => {
   return (
     <div
       className="fixed w-full max-w-screen-md grid grid-cols-5 bottom-0 mx-auto
-    border-neutral-600 border-t px-5 py-3 *:text-white"
+    border-neutral-600 border-t px-5 py-3 *:text-white bg-neutral-800"
     >
       <Link href="/product" className="flex flex-col items-center gap-px">
         {pathname === "/product" ? (

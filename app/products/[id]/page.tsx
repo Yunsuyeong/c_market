@@ -44,10 +44,15 @@ const ProductDetail = async ({ params }: { params: { id: string } }) => {
   return (
     <div>
       <div className="relative aspect-square">
-        <Image fill src={product.photo} alt={product.title} />
+        <Image
+          fill
+          src={product.photo}
+          alt={product.title}
+          className="object-cover"
+        />
       </div>
       <div className="flex items-center gap-3 p-5 border-b border-neutral-700">
-        <div className="size-10 rounded-full">
+        <div className="size-10 rounded-full overflow-hidden">
           {product.user.avatar !== null ? (
             <Image
               alt={product.user.username}

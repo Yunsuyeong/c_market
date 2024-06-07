@@ -5,12 +5,24 @@ import Input from "@/components/input";
 import { PhotoIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
 import { useFormState } from "react-dom";
+import { useForm } from "react-hook-form";
 import { getUploadUrl, uploadProduct } from "./actions";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { productSchema, ProductType } from "./schema";
 
 const AddProduct = () => {
   const [preview, setPreview] = useState("");
   const [uploadURL, setUploadURL] = useState("");
-  const [photoId, setPhotoId] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    setError,
+    formState: { errors },
+  } = useForm<ProductType>({
+    resolver: zodResolver(productSchema),
+  });
   const onImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const {
       target: { files },
@@ -21,15 +33,18 @@ const AddProduct = () => {
     const file = files[0];
     const url = URL.createObjectURL(file);
     setPreview(url);
+    setFile(file);
     const { success, result } = await getUploadUrl();
     if (success) {
       const { id, uploadUrl } = result;
       setUploadURL(uploadUrl);
-      setPhotoId(id);
+      setValue(
+        "photo",
+        `https://imagedelivery.net/R0rRD058TrD049hkghsSqQ/${id}`
+      );
     }
   };
-  const interceptAction = async (_: any, formData: FormData) => {
-    const file = formData.get("photo");
+  const onSubmit = handleSubmit(async (form: ProductType) => {
     if (!file) {
       return;
     }
@@ -42,14 +57,22 @@ const AddProduct = () => {
     if (res.status !== 200) {
       return;
     }
-    const photoUrl = `https://imagedelivery.net/R0rRD058TrD049hkghsSqQ/${photoId}`;
-    formData.set("photo", photoUrl);
-    return uploadProduct(_, formData);
+    const formData = new FormData();
+    formData.append("title", form.title);
+    formData.append("price", form.price + "");
+    formData.append("description", form.description);
+    formData.append("photo", form.photo);
+    const errors = await uploadProduct(formData);
+    if (errors) {
+      //setError()
+    }
+  });
+  const onValid = async () => {
+    await onSubmit();
   };
-  const [state, action] = useFormState(interceptAction, null);
   return (
     <div>
-      <form action={action} className="flex flex-col gap-5 p-5">
+      <form action={onValid} className="flex flex-col gap-5 p-5">
         <label
           htmlFor="photo"
           className="flex items-center justify-center flex-col border-neutral-300 border-2 aspect-square
@@ -59,7 +82,10 @@ const AddProduct = () => {
           {preview === "" ? (
             <>
               <PhotoIcon className="w-28" />
-              <div className="text-sm text-neutral-400">Add the photo</div>
+              <div className="text-sm text-neutral-400">
+                Add the photo
+                {errors.photo?.message}
+              </div>
             </>
           ) : null}
         </label>
@@ -68,28 +94,29 @@ const AddProduct = () => {
           type="file"
           id="photo"
           name="photo"
+          accept="image/*"
           className="hidden"
         />
         <Input
-          name="title"
           required
           placeholder="Title"
           type="text"
-          errors={state?.fieldErrors.title}
+          {...register("title")}
+          errors={[errors.title?.message ?? ""]}
         />
         <Input
-          name="price"
           required
           placeholder="Price"
           type="number"
-          errors={state?.fieldErrors.price}
+          {...register("price")}
+          errors={[errors.price?.message ?? ""]}
         />
         <Input
-          name="description"
           required
           placeholder="Description"
           type="text"
-          errors={state?.fieldErrors?.description}
+          {...register("description")}
+          errors={[errors.description?.message ?? ""]}
         />
         <Button text="Add" />
       </form>

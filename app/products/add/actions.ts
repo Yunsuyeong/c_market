@@ -4,23 +4,9 @@ import fs from "fs/promises";
 import client from "@/lib/db";
 import getSession from "@/lib/session";
 import { redirect } from "next/navigation";
+import { productSchema } from "./schema";
 
-const productSchema = z.object({
-  photo: z.string({
-    required_error: "Photo is requred",
-  }),
-  title: z.string({
-    required_error: "title is requred",
-  }),
-  price: z.coerce.number({
-    required_error: "price is requred",
-  }),
-  description: z.string({
-    required_error: "description is requred",
-  }),
-});
-
-export const uploadProduct = async (_: any, formData: FormData) => {
+export const uploadProduct = async (formData: FormData) => {
   const data = {
     photo: formData.get("photo"),
     title: formData.get("title"),
@@ -58,6 +44,9 @@ export const uploadProduct = async (_: any, formData: FormData) => {
     }
   }
 };
+
+//cloudflare 상에 업로드 되는 이미지의 url을 생성하고 불러옴.
+//생성된 이미지의 url 뒤에 여러 variant를 붙여 다양한 퀄리티/화질의 이미지를 불러올 수 있음.
 
 export const getUploadUrl = async () => {
   const res = await fetch(

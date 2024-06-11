@@ -61,7 +61,7 @@ const AddProduct = () => {
     formData.append("title", form.title);
     formData.append("price", form.price + "");
     formData.append("description", form.description);
-    formData.append("photo", form.photo);
+    //formData.append("photo", form.photo);
     const errors = await uploadProduct(formData);
     if (errors) {
       //setError()

@@ -15,7 +15,7 @@ const ListProduct = ({ id, title, price, createdAt, photo }: IListProduct) => {
     <Link href={`/products/${id}`} className="flex gap-5">
       <div className="relative size-28 rounded-md overflow-hidden">
         <Image
-          src={`${photo}/width=100,height=100`}
+          src={`${photo}/avatar`}
           alt={title}
           fill
           quality={100}

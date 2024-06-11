@@ -58,7 +58,7 @@ const ProductList = ({ initialProducts }: IProductList) => {
       {initialProducts.map((product) => (
         <ListProduct key={product.id} {...product} />
       ))}
-      {!isLastPage ? (
+      {/* {!isLastPage ? (
         <span
           ref={trigger}
           style={{
@@ -68,7 +68,7 @@ const ProductList = ({ initialProducts }: IProductList) => {
         >
           {isLoading ? "Loading..." : "Load more"}
         </span>
-      ) : null}
+      ) : null} */}
     </div>
   );
 };

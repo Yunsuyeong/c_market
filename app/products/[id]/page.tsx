@@ -4,17 +4,22 @@ import { formatToWon } from "@/lib/utils";
 import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import {
+  revalidatePath,
+  revalidateTag,
+  unstable_cache as nextCache,
+} from "next/cache";
 
 const getIsOwner = async (userId: number) => {
-  const session = await getSession();
+  /*  const session = await getSession();
   if (session.id) {
     return session.id === userId;
-  }
-  return false;
+  } */
+  return true;
 };
 
-const getProduct = async (id: number) => {
+export const getProduct = async (id: number) => {
   const product = await client.product.findUnique({
     where: {
       id,
@@ -31,22 +36,62 @@ const getProduct = async (id: number) => {
   return product;
 };
 
+const getProductTitle = async (id: number) => {
+  const product = await client.product.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      title: true,
+    },
+  });
+  return product;
+};
+
+export const generateMetadata = async ({
+  params,
+}: {
+  params: { id: string };
+}) => {
+  const product = await getCachedProductTitle(Number(params.id));
+  return {
+    title: product?.title,
+  };
+};
+
+const getCachedProduct = nextCache(getProduct, ["product-detail"], {
+  tags: ["product-detail"],
+});
+
+const getCachedProductTitle = nextCache(getProductTitle, ["product-title"], {
+  tags: ["product-title"],
+});
+
 const ProductDetail = async ({ params }: { params: { id: string } }) => {
   const id = Number(params.id);
   if (isNaN(id)) {
     return notFound();
   }
-  const product = await getProduct(id);
+  const product = await getCachedProduct(id);
   if (!product) {
     return notFound();
   }
   const isOwner = await getIsOwner(product.userId);
+  const deleteProduct = async () => {
+    "use server";
+    await client.product.delete({
+      where: {
+        id: product?.id,
+      },
+    });
+    redirect("/");
+  };
   return (
     <div>
       <div className="relative aspect-square">
         <Image
           fill
-          src={`${product.photo}/width=500,height=500`}
+          src={`${product.photo}`}
           alt={product.title}
           className="object-cover"
         />
@@ -77,12 +122,23 @@ const ProductDetail = async ({ params }: { params: { id: string } }) => {
           {formatToWon(product.price)}원
         </span>
         {isOwner ? (
-          <button
-            className="bg-red-500 px-5 py-2.5
+          <>
+            <form action={deleteProduct}>
+              <button
+                className="bg-red-500 px-5 py-2.5
         rounded-md text-white font-semibold"
-          >
-            Delete Product
-          </button>
+              >
+                Delete Product
+              </button>
+            </form>
+            <Link
+              href={`/products/${product.id}/edit`}
+              className="bg-green-500 px-5 py-2.5
+        rounded-md text-white font-semibold"
+            >
+              Edit Product
+            </Link>
+          </>
         ) : null}
         <Link
           href={``}
@@ -94,6 +150,19 @@ const ProductDetail = async ({ params }: { params: { id: string } }) => {
       </div>
     </div>
   );
+};
+
+export const dynamicParams = true;
+
+export const generateStaticParams = async () => {
+  const products = await client.product.findMany({
+    select: {
+      id: true,
+    },
+  });
+  return products.map((product) => ({
+    id: product.id + "",
+  }));
 };
 
 export default ProductDetail;

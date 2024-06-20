@@ -12,10 +12,10 @@ import {
 } from "next/cache";
 
 const getIsOwner = async (userId: number) => {
-  /*  const session = await getSession();
+  const session = await getSession();
   if (session.id) {
     return session.id === userId;
-  } */
+  }
   return true;
 };
 
@@ -86,8 +86,30 @@ const ProductDetail = async ({ params }: { params: { id: string } }) => {
     });
     redirect("/");
   };
+  const createChatRoom = async () => {
+    "use server";
+    const session = await getSession();
+    const room = await client.chatRoom.create({
+      data: {
+        users: {
+          connect: [
+            {
+              id: product.userId,
+            },
+            {
+              id: session.id,
+            },
+          ],
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+    redirect(`/chats/${room.id}`);
+  };
   return (
-    <div>
+    <div className="pb-20">
       <div className="relative aspect-square">
         <Image
           fill
@@ -113,7 +135,7 @@ const ProductDetail = async ({ params }: { params: { id: string } }) => {
           <h3>{product.user.username}</h3>
         </div>
       </div>
-      <div className="p-5">
+      <div className="p-10">
         <h1 className="text-2xl font-semibold">{product.title}</h1>
         <p>{product.description}</p>
       </div>
@@ -140,13 +162,14 @@ const ProductDetail = async ({ params }: { params: { id: string } }) => {
             </Link>
           </>
         ) : null}
-        <Link
-          href={``}
-          className="bg-orange-500 px-5 py-2.5
+        <form action={createChatRoom}>
+          <button
+            className="bg-orange-500 px-5 py-2.5
         rounded-md text-white font-semibold"
-        >
-          Chat
-        </Link>
+          >
+            Chat
+          </button>
+        </form>
       </div>
     </div>
   );

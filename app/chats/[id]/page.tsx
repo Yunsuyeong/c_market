@@ -48,7 +48,7 @@ const getMessages = async (chatRoomId: string) => {
   return messages;
 };
 
-const getUserProfile = async () => {
+export const getUserProfile = async () => {
   const session = await getSession();
   const user = await client.user.findUnique({
     where: {

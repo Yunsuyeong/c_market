@@ -33,3 +33,17 @@ export const dislikePost = async (postId: number) => {
     revalidateTag(`like-status-${postId}`);
   } catch (e) {}
 };
+
+export const saveComment = async (payload: string, postId: number) => {
+  const session = await getSession();
+  await client.comment.create({
+    data: {
+      payload,
+      postId,
+      userId: session.id!,
+    },
+    select: {
+      id: true,
+    },
+  });
+};

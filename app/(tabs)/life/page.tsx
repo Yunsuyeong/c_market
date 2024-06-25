@@ -29,7 +29,6 @@ export const metadata = {
 
 const Life = async () => {
   const posts = await getPosts();
-  console.log(posts);
   return (
     <div>
       <PostList posts={posts} />

@@ -1,5 +1,8 @@
+import ChatList from "@/components/chat-list";
 import client from "@/lib/db";
 import { formatToTimeAgo } from "@/lib/utils";
+import Image from "next/image";
+import Link from "next/link";
 
 const getChatRooms = async () => {
   const chatRooms = await client.chatRoom.findMany({
@@ -10,9 +13,13 @@ const getChatRooms = async () => {
         },
       },
       messages: {
-        select: {
-          payload: true,
-          createdAt: true,
+        include: {
+          user: {
+            select: {
+              username: true,
+              avatar: true,
+            },
+          },
         },
       },
     },
@@ -24,11 +31,7 @@ const Chat = async () => {
   const chatRooms = await getChatRooms();
   return (
     <div>
-      {chatRooms.map((chatroom) => (
-        <div key={chatroom.id}>
-          <h1>{formatToTimeAgo(chatroom.createdAt.toString())}</h1>
-        </div>
-      ))}
+      <ChatList chatRooms={chatRooms} />
     </div>
   );
 };

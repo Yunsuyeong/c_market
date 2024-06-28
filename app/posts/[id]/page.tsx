@@ -8,7 +8,7 @@ import { notFound } from "next/navigation";
 import LikeButton from "@/components/like-button";
 import { Prisma } from "@prisma/client";
 import CommentsList from "@/components/comments-list";
-import { getUserProfile } from "@/app/chats/[id]/page";
+import { getProfile } from "@/app/chats/[id]/page";
 
 const getPost = async (id: number) => {
   try {
@@ -102,7 +102,7 @@ export type initialComments = Prisma.PromiseReturnType<typeof getComments>;
 
 const Post = async ({ params }: { params: { id: string } }) => {
   const session = await getSession();
-  const user = await getUserProfile();
+  const user = await getProfile();
   const id = Number(params.id);
   if (isNaN(id)) {
     return notFound();

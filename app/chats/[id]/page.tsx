@@ -49,7 +49,7 @@ const getMessages = async (chatRoomId: string) => {
   return messages;
 };
 
-export const getUserProfile = async () => {
+export const getProfile = async () => {
   const session = await getSession();
   const user = await client.user.findUnique({
     where: {
@@ -73,7 +73,7 @@ const ChatRoom = async ({ params }: { params: { id: string } }) => {
   const session = await getSession();
   const isOwner = Boolean(session.id === room.users[0].id);
   const initialMessages = await getMessages(params.id);
-  const user = await getUserProfile();
+  const user = await getProfile();
   if (!user) {
     return notFound();
   }

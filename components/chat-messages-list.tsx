@@ -14,6 +14,7 @@ interface IChatMessagesList {
   chatRoomId: string;
   username: string;
   avatar: string;
+  isOwner: boolean;
 }
 
 const SUPABASE_PUBLIC_KEY =
@@ -27,6 +28,7 @@ const ChatMessagesList = ({
   chatRoomId,
   username,
   avatar,
+  isOwner,
 }: IChatMessagesList) => {
   const [messages, setMessages] = useState(initialMessages);
   const [message, setMessage] = useState("");
@@ -44,6 +46,7 @@ const ChatMessagesList = ({
       {
         id: Date.now(),
         payload: message,
+        isRead: isOwner ? true : false,
         createdAt: new Date(),
         userId,
         user: {
@@ -58,6 +61,7 @@ const ChatMessagesList = ({
       payload: {
         id: Date.now(),
         payload: message,
+        isRead: isOwner ? true : false,
         createdAt: new Date(),
         userId,
         user: {
@@ -82,7 +86,7 @@ const ChatMessagesList = ({
     };
   }, [chatRoomId]);
   return (
-    <div className="flex flex-col justify-end min-h-screen p-5">
+    <div className="flex flex-col justify-end min-h-screen p-5 gap-2">
       {messages.map((message) => (
         <div
           key={message.id}
@@ -102,17 +106,22 @@ const ChatMessagesList = ({
             <div className="size-8 bg-neutral-700 rounded-full" />
           )}
           <div
-            className={`flex flex-col gap-1 ${
+            className={`flex flex-col gap-3 ${
               message.userId === userId ? "items-end" : ""
             }`}
           >
-            <span
-              className={`${
-                message.userId === userId ? "bg-green-500" : "bg-orange-500"
-              } p-2.5 rounded-md`}
-            >
-              {message.payload}
-            </span>
+            <div>
+              <span
+                className={`${
+                  message.userId === userId ? "bg-green-500" : "bg-orange-500"
+                } p-2.5 rounded-md`}
+              >
+                {message.payload}
+              </span>
+              <span className="text-xs pl-2">
+                {!message.isRead ? "1" : null}
+              </span>
+            </div>
             <span className="text-xs">
               {formatToTimeAgo(message.createdAt.toString())}
             </span>

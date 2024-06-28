@@ -35,6 +35,7 @@ const getMessages = async (chatRoomId: string) => {
     select: {
       id: true,
       payload: true,
+      isRead: true,
       createdAt: true,
       userId: true,
       user: {
@@ -70,6 +71,7 @@ const ChatRoom = async ({ params }: { params: { id: string } }) => {
     return notFound();
   }
   const session = await getSession();
+  const isOwner = Boolean(session.id === room.users[0].id);
   const initialMessages = await getMessages(params.id);
   const user = await getUserProfile();
   if (!user) {
@@ -81,6 +83,7 @@ const ChatRoom = async ({ params }: { params: { id: string } }) => {
       userId={session.id!}
       username={user.username}
       avatar={user.avatar!}
+      isOwner={isOwner}
       initialMessages={initialMessages}
     />
   );

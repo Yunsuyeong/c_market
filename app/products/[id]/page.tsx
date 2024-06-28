@@ -19,7 +19,7 @@ const getIsOwner = async (userId: number) => {
   return true;
 };
 
-export const getProduct = async (id: number) => {
+const getProduct = async (id: number) => {
   const product = await client.product.findUnique({
     where: {
       id,

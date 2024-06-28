@@ -49,11 +49,11 @@ const getMessages = async (chatRoomId: string) => {
   return messages;
 };
 
-export const getProfile = async () => {
+async function getProfile() {
   const session = await getSession();
   const user = await client.user.findUnique({
     where: {
-      id: session.id,
+      id: session.id!,
     },
     select: {
       username: true,
@@ -61,7 +61,7 @@ export const getProfile = async () => {
     },
   });
   return user;
-};
+}
 
 export type initialChatMessages = Prisma.PromiseReturnType<typeof getMessages>;
 
